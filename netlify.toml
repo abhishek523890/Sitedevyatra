@@ -1,0 +1,11 @@
+# Optional Netlify deployment configuration.
+# Install the official Next.js plugin in the Netlify UI or via this file.
+[build]
+  command = "next build"
+  publish = ".next"
+
+[[plugins]]
+  package = "@netlify/plugin-nextjs"
+
+[build.environment]
+  NODE_VERSION = "18"
