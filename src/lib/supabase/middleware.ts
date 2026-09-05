@@ -1,9 +1,17 @@
 /**
  * Refreshes the auth session on every request and guards /admin & /dashboard.
+ *
+ * NOTE: The `cookiesToSet` parameter is explicitly typed below. Relying on
+ * TypeScript to infer it from @supabase/ssr's cookie-methods type can fail
+ * under strict mode on some build environments (e.g. Vercel), producing:
+ *   "Parameter 'cookiesToSet' implicitly has an 'any' type." (TS7006)
+ * Giving it an explicit type sidesteps that inference issue entirely.
  */
-import { createServerClient } from '@supabase/ssr';
+import { createServerClient, type CookieOptions } from '@supabase/ssr';
 import { NextResponse, type NextRequest } from 'next/server';
 import { publicEnv } from '@/lib/env';
+
+type CookieToSet = { name: string; value: string; options?: CookieOptions };
 
 export async function updateSession(request: NextRequest) {
   let response = NextResponse.next({ request });
@@ -16,7 +24,7 @@ export async function updateSession(request: NextRequest) {
         getAll() {
           return request.cookies.getAll();
         },
-        setAll(cookiesToSet) {
+        setAll(cookiesToSet: CookieToSet[]) {
           cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value));
           response = NextResponse.next({ request });
           cookiesToSet.forEach(({ name, value, options }) =>
